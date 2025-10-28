@@ -1,0 +1,16 @@
+package templates
+
+import "fmt"
+
+templ NetworkStatusBar(requests []Request) {
+	<div class="px-4 py-2 bg-gray-800 border-t border-gray-700 text-2xs text-gray-300 flex items-center gap-4">
+		<span>{ fmt.Sprintf("%d requests", len(requests)) }</span>
+		<span>{ fmt.Sprintf("%s transferred", formatTotalBytes(requests, false)) }</span>
+		<span>{ fmt.Sprintf("%s resources", formatTotalBytes(requests, true)) }</span>
+		if len(requests) > 0 {
+			<span>Finish: { fmt.Sprintf("%.2f s", float64(getMaxDuration(requests))/1000.0) }</span>
+			<span>DOMContentLoaded: { "399 ms" }</span>
+			<span>Load: { "427 ms" }</span>
+		}
+	</div>
+}

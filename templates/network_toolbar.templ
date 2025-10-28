@@ -1,0 +1,76 @@
+package templates
+
+templ NetworkToolbar() {
+	<div class="flex items-center gap-4 px-4 py-2 border-b border-gray-700 bg-gray-800 text-2xs">
+		<!-- Filter Input -->
+		<div class="flex items-center gap-2">
+			<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"></path>
+			</svg>
+			<input type="text" placeholder="Filter" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-2xs w-32 focus:outline-none focus:border-blue-500"/>
+		</div>
+		
+		<!-- Preserve Log -->
+		<label class="flex items-center gap-1 cursor-pointer">
+			<input type="checkbox" class="form-checkbox h-3 w-3 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-1"/>
+			<span class="text-2xs text-gray-300">Preserve log</span>
+		</label>
+		
+		<!-- Disable Cache -->
+		<label class="flex items-center gap-1 cursor-pointer">
+			<input type="checkbox" class="form-checkbox h-3 w-3 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-1"/>
+			<span class="text-2xs text-gray-300">Disable cache</span>
+		</label>
+		
+		<!-- Throttling Dropdown -->
+		<select class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-2xs focus:outline-none focus:border-blue-500">
+			<option>No throttling</option>
+			<option>Slow 3G</option>
+			<option>Fast 3G</option>
+		</select>
+		
+		<!-- Filter Buttons -->
+		<div class="flex items-center gap-1 ml-4">
+			@FilterButton("All", true)
+			@FilterButton("Fetch/XHR", false)
+			@FilterButton("Doc", false)
+			@FilterButton("CSS", false)
+			@FilterButton("JS", false)
+			@FilterButton("Font", false)
+			@FilterButton("Img", false)
+			@FilterButton("Media", false)
+			@FilterButton("Manifest", false)
+			@FilterButton("Socket", false)
+			@FilterButton("Wasm", false)
+			@FilterButton("Other", false)
+		</div>
+		
+		<!-- More Options -->
+		<div class="flex items-center gap-2 ml-auto">
+			<label class="flex items-center gap-1 cursor-pointer">
+				<input type="checkbox" class="form-checkbox h-3 w-3 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-1"/>
+				<span class="text-2xs text-gray-300">Invert</span>
+			</label>
+			
+			<select class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-2xs focus:outline-none focus:border-blue-500">
+				<option>More filters</option>
+			</select>
+			
+			<!-- Clear Button -->
+			<button 
+				hx-post="/requests/clear" 
+				hx-target="#request-list"
+				hx-swap="innerHTML"
+				class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-2xs text-white"
+			>
+				Clear
+			</button>
+		</div>
+	</div>
+}
+
+templ FilterButton(text string, active bool) {
+	<button class={ "px-2 py-1 rounded text-2xs border", templ.KV("bg-blue-600 border-blue-600 text-white", active), templ.KV("bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600", !active) }>
+		{ text }
+	</button>
+}

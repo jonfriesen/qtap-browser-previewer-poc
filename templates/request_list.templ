@@ -1,0 +1,98 @@
+package templates
+
+import (
+	"fmt"
+	"strconv"
+)
+
+templ RequestList(requests []Request) {
+	if len(requests) == 0 {
+		<div class="flex items-center justify-center h-32 text-gray-500">
+			<div class="text-center">
+				<p>No requests recorded</p>
+				<p class="text-sm text-gray-600">Network requests will appear here</p>
+			</div>
+		</div>
+	} else {
+		<!-- Table Header -->
+		<div class="sticky top-0 bg-gray-800 border-b border-gray-700">
+			<div class="grid network-table-cols gap-4 px-4 py-2 text-2xs font-medium text-gray-300 uppercase tracking-wider">
+				<div>Domain</div>
+				<div>Path</div>
+				<div>Status</div>
+				<div>Type</div>
+				<div>Initiator</div>
+				<div>Size</div>
+				<div>Time</div>
+			</div>
+		</div>
+		
+		<!-- Request Rows -->
+		<div class="divide-y divide-gray-700">
+			for _, request := range requests {
+				@RequestRow(request)
+			}
+		</div>
+	}
+}
+
+templ RequestRow(request Request) {
+	<div class="grid network-table-cols gap-4 px-4 py-2 text-xs hover:bg-gray-800 transition-colors cursor-pointer" 
+		hx-post="/select-request" 
+		hx-vals={ fmt.Sprintf(`{"url": "%s", "status": "%d", "method": "%s", "contentType": "%s", "duration": "%d", "rdBytes": "%d", "agent": "%s"}`, request.Url, request.Status, request.Method, request.ContentType, request.Duration, request.RdBytes, request.Agent) }
+		hx-target="#main-content" 
+		hx-swap="outerHTML">
+		<!-- Domain -->
+		<div class="flex items-center gap-2 min-w-0">
+			@RequestIcon(request.ContentType)
+			<div class="text-gray-400 truncate" title={ request.Url }>{ getDomain(request.Url) }</div>
+		</div>
+
+		<!-- Name -->
+		<span class="truncate text-blue-400" title={ request.Url }>{ request.URLPath }</span>
+
+		<!-- Status -->
+		<div class={ "text-left", getStatusColor(request.Status) }>
+			{ strconv.Itoa(request.Status) }
+		</div>
+		
+		<!-- Type -->
+		<div class="text-gray-300">
+			{ getRequestType(request.ContentType) }
+		</div>
+		
+		<!-- Initiator -->
+		<div class="text-gray-300 truncate" title={ request.Agent }>
+			{ truncateString(request.Agent, 20) }
+		</div>
+		
+		<!-- Size -->
+		<div class="text-gray-300 text-right">
+			if request.RdBytes > 0 {
+				{ formatBytes(request.RdBytes) }
+			} else {
+				<span class="text-gray-500">(disk cache)</span>
+			}
+		</div>
+		
+		<!-- Time -->
+		<div class="text-gray-300 text-right">
+			{ fmt.Sprintf("%d ms", request.Duration) }
+		</div>
+	</div>
+}
+
+templ RequestIcon(contentType string) {
+	switch getRequestType(contentType) {
+	case "script":
+		<div class="w-4 h-4 bg-yellow-500 rounded-sm flex items-center justify-center text-2xs font-bold text-black">JS</div>
+	case "stylesheet":
+		<div class="w-4 h-4 bg-blue-500 rounded-sm flex items-center justify-center text-2xs font-bold text-white">CSS</div>
+	case "document":
+		<div class="w-4 h-4 bg-gray-500 rounded-sm flex items-center justify-center text-2xs font-bold text-white">DOC</div>
+	case "image":
+		<div class="w-4 h-4 bg-green-500 rounded-sm flex items-center justify-center text-2xs font-bold text-white">IMG</div>
+	default:
+		<div class="w-4 h-4 bg-gray-600 rounded-sm flex items-center justify-center text-2xs font-bold text-white">?</div>
+	}
+}

@@ -1,0 +1,87 @@
+package templates
+
+import "fmt"
+
+templ NetworkPage(requests []Request) {
+	@Base("Network Monitor") {
+		<!-- Panel Headers -->
+		@PanelHeaders()
+		
+		<!-- Network Tab Header -->
+		@NetworkToolbar()
+		
+		<!-- Timeline/Waterfall Area -->
+		// @NetworkTimeline()
+		
+		<!-- Main Content Area -->
+		<div id="main-content" class="flex-1 overflow-hidden">
+			@NetworkMainContent(requests, nil)
+		</div>
+		
+		<!-- Status Bar -->
+		@NetworkStatusBar(requests)
+	}
+}
+
+templ NetworkMainContent(requests []Request, selectedRequest *Request) {
+	if selectedRequest == nil {
+		<!-- Normal single-panel view -->
+		<div 
+			id="request-list" 
+			hx-ext="sse" 
+			sse-connect="/events"
+			sse-swap="request-update"
+			class="h-full overflow-auto"
+		>
+			@RequestList(requests)
+		</div>
+	} else {
+		<!-- Split view -->
+		<div class="flex h-full">
+			<!-- Left panel - Request List -->
+			<div class="w-1/2 overflow-hidden border-r border-gray-700">
+				<div 
+					id="request-list" 
+					hx-ext="sse" 
+					sse-connect="/events"
+					sse-swap="request-update"
+					class="h-full overflow-auto"
+				>
+					@RequestList(requests)
+				</div>
+			</div>
+			
+			<!-- Right panel - Request Details -->
+			<div class="w-1/2 overflow-hidden">
+				@RequestDetailPanel(*selectedRequest)
+			</div>
+		</div>
+	}
+}
+
+templ RequestDetailPanel(request Request) {
+	<div class="h-full bg-gray-900 p-6 overflow-auto">
+		<div class="text-center">
+			<h2 class="text-lg font-medium text-gray-300 mb-4">Request Details</h2>
+			<div class="text-gray-500 mb-8">
+				<p>Selected request details will appear here</p>
+				<p class="text-sm mt-2">This is a placeholder panel</p>
+			</div>
+			
+			<!-- Sample content showing the selected request -->
+			<div class="bg-gray-800 rounded p-4 text-left max-w-md mx-auto">
+				<div class="text-sm space-y-2">
+					<div><span class="text-gray-400">URL:</span> <span class="text-blue-400">{ request.Url }</span></div>
+					<div><span class="text-gray-400">Method:</span> <span class="text-green-400">{ request.Method }</span></div>
+					<div><span class="text-gray-400">Status:</span> <span class="text-yellow-400">{ fmt.Sprintf("%d", request.Status) }</span></div>
+					<div><span class="text-gray-400">Type:</span> <span class="text-gray-300">{ getRequestType(request.ContentType) }</span></div>
+					<div><span class="text-gray-400">Duration:</span> <span class="text-gray-300">{ fmt.Sprintf("%d ms", request.Duration) }</span></div>
+				</div>
+				
+				<div class="text-gray-500 text-xs mt-4 text-center">
+					<p>Click another row to see different request details</p>
+				</div>
+			</div>
+		</div>
+	</div>
+}
